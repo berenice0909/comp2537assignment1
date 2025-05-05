@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <h1>Login</h1>
+  <form action="/login" method="POST"> <!--sens the user's login info to /login-->
+    <!--these attributes match the keys in the req.body POST/login route-->
+    <label for="email">Email:</label>
+    <input type="email" name="email" required><br><br>
+    <label for="password">Password:</label>
+    <input type="password" name="password" required><br><br>
+
+    <button type="submit">Login</button>
+  </form>
+</body>
+</html>
