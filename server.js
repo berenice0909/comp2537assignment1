@@ -101,6 +101,7 @@ app.post('/signup', async (req, res) => { //listens for POST request to signup w
     });
 
     await user.save(); //stores the new user document in my MongoDB comp2537-assignment1 database we created in the env file
+    req.session.user = user;
     res.redirect('/members');
   });
 
