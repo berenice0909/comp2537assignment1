@@ -101,8 +101,8 @@ app.post('/signup', async (req, res) => { //listens for POST request to signup w
     });
 
     await user.save(); //stores the new user document in my MongoDB comp2537-assignment1 database we created in the env file
-    res.send('/members'); //confirms user is signed up 
-});
+    res.redirect('/members');
+  });
 
 ////POST ROUTE for LOGIN////
 app.post('/login', async (req, res) => { //listens to POST requests to /login that are sent by my form in login.ejs
