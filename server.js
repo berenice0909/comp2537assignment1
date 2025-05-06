@@ -101,7 +101,7 @@ app.post('/signup', async (req, res) => { //listens for POST request to signup w
     });
 
     await user.save(); //stores the new user document in my MongoDB comp2537-assignment1 database we created in the env file
-    res.send('Account created succesfully!'); //confirms user is signed up 
+    res.send('/members'); //confirms user is signed up 
 });
 
 ////POST ROUTE for LOGIN////
