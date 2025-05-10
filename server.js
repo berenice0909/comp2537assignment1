@@ -73,11 +73,10 @@ app.get('/logout', (req, res) => {
     res.send('This is a protected page.');
   });
 
-  app.get('/members', isLoggedIn, (req, res) => {
-    const images = ['img1.jpg', 'img2.jpg', 'img3.jpg']; // Match your file names
-    const randomImage = images[Math.floor(Math.random() * images.length)];
-    res.render('members', { user: req.session.user, image: randomImage });
-  });
+ app.get('/members', (req, res) => {
+  res.render('members', { user: req.session.user });
+});
+
   
   
 ////POST ROUTE for SIGNUP////
