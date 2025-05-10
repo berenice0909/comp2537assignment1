@@ -1,0 +1,4 @@
+.fixed-size {
+  max-height: 250px;
+  object-fit: cover;
+}
