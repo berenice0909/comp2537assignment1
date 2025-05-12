@@ -1,16 +1,22 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Home</title>
-    <link rel="stylesheet" href="/css/style.css">
-  </head>
-  <body>
-    <h1>Welcome <%= user ? user.name : 'Guest' %></h1>
+<%- include('templates/header') %>
 
-    <% if (user) { %>
-      <a href="/logout">Logout</a>
-    <% } else { %>
-      <a href="/login">Login</a> | <a href="/signup">Sign up</a>
-    <% } %>
-  </body>
-</html>
+  <div class="container mt-5">
+    <div class="p-5 mb-4 bg-light rounded-3">
+      <div class="container-fluid py-5">
+        <h1 class="display-4">
+          Welcome <%= user ? user.name : 'Guest' %>
+        </h1>
+        <p class="lead">This is a members-only site for cat content and admin control.</p>
+        <hr class="my-4">
+        <p class="mb-3">Login or sign up to access exclusive features. If you're already in, let's go!</p>
+        <% if (user) { %>
+          <a class="btn btn-primary btn-lg" href="/members" role="button">Enter Members Area</a>
+          <% } else { %>
+            <a class="btn btn-primary btn-lg" href="/login" role="button">Login</a>
+            <a class="btn btn-secondary btn-lg ms-2" href="/signup" role="button">Sign Up</a>
+            <% } %>
+      </div>
+    </div>
+  </div>
+
+  <%- include('templates/footer') %>

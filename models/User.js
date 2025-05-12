@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({ //defines the fields a user must have
     password: {
         type: String,
         required: true
+    },
+    user_type: {
+        type: String,
+        default: 'user'
     }
 });
 

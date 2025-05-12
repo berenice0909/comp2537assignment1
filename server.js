@@ -46,12 +46,16 @@ app.get('/', (req, res) => {
 
 ////ROUTE to Sign Up////
 app.get('/signup', (req, res) => { //this says when someone goes to this path localhost/3000/signup, run this code there is no req object used in this function, the res object sends back a result
-    res.render('signup'); //tells Express to render the file named signup.ejs, looks in views folder where engine is set up which produces HTML and sends it back to the browser
+    res.render('signup', { user: req.session.user }); //tells Express to render the file named signup.ejs, looks in views folder where engine is set up which produces HTML and sends it back to the browser
 });
 
 app.get('/login', (req, res) => {
-    res.render('login'); // renders views/login.ejs
+  res.render('login', {
+    user: req.session.user,
+    error: null
+  });
 });
+
 
 
 app.get('/logout', (req, res) => {
@@ -73,59 +77,123 @@ app.get('/logout', (req, res) => {
     res.send('This is a protected page.');
   });
 
- app.get('/members', (req, res) => {
+app.get('/members', isLoggedIn, (req, res) => {
   res.render('members', { user: req.session.user });
 });
 
-  
-  
+
+function isAdmin(req, res, next) {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  if (req.session.user.user_type !== 'admin') {
+    return res.status(403).render('403', { user: req.session.user });
+  }
+
+  next();
+}
+
+
+app.get('/admin', isAdmin, async (req, res) => {
+  try {
+    const users = await User.find(); // gets all users from MongoDB
+    res.render('admin', { user: req.session.user, users });
+  } catch (err) {
+    res.status(500).send('Server error retrieving users.');
+  }
+});
+
 ////POST ROUTE for SIGNUP////
-app.post('/signup', async (req, res) => { //listens for POST request to signup which is triggered when someone submits the form, we make it async so we can use await when saving data or hasing the password 
-    const schema = Joi.object({ //this defines what the valid form for data should look like
-        name: Joi.string().trim().required(), //is a required string, trimmed, no extra spaces
-        email: Joi.string().email().trim(), //is a required valid email, trimmed
-        password: Joi.string().min(5).required() //must be at least 5 characters
+app.post('/signup', async (req, res) => {
+    const schema = Joi.object({
+        name: Joi.string().trim().required(),
+        email: Joi.string().email().trim(),
+        password: Joi.string().min(5).required()
     });
 
-    const { error } = schema.validate(req.body); //validates incoming form data
-    if(error) { //if validation fails...
-        return res.send(`Validation error: ${error.details[0].message}`); //show helpfull message w/o crashing the app
+    const { error } = schema.validate(req.body);
+    if (error) {
+        return res.send(`Validation error: ${error.details[0].message}`);
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10); //bcrypt.hash() function hashes password, req.body.passowrd gives me the raw password, 10 salt roung(how many times to mix the password), await makes me wait for the hashing before moving on
-    const user = new User({ //creating a new user using the mongoose model we defined in the env file
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+    const user = new User({
         name: req.body.name,
         email: req.body.email,
-        password: hashedPassword //saved as the hashed version
+        password: hashedPassword,
+        user_type: 'user' // ✅ Correctly added here
     });
 
-    await user.save(); //stores the new user document in my MongoDB comp2537-assignment1 database we created in the env file
+    await user.save();
     req.session.user = user;
     res.redirect('/members');
-  });
+});
+
 
 ////POST ROUTE for LOGIN////
-app.post('/login', async (req, res) => { //listens to POST requests to /login that are sent by my form in login.ejs
-    const user = await User.findOne({ email: req.body.email });
-if (!user) {
-  return res.send('Invalid email or password.');
-}
+app.post('/login', async (req, res) => {
+  const schema = Joi.object({
+    email: Joi.string().email().trim().required(),
+    password: Joi.string().min(5).required()
+  });
 
-const validPassword = await bcrypt.compare(req.body.password, user.password);
-if (!validPassword) {
-  return res.send('Invalid email or password.');
-}
+  const { error } = schema.validate(req.body);
+  if (error) {
+    return res.render('login', {
+      user: null,
+      error: `Validation error: ${error.details[0].message}`
+    });
+  }
 
-req.session.user = user;
-res.redirect('/members');
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return res.render('login', {
+      user: null,
+      error: 'Invalid email or password.'
+    });
+  }
+
+  const validPassword = await bcrypt.compare(req.body.password, user.password);
+  if (!validPassword) {
+    return res.render('login', {
+      user: null,
+      error: 'Invalid email or password.'
+    });
+  }
+
+  req.session.user = user;
+  res.redirect('/members');
+});
 
 
-})
+///ROUTE for ADMIN////
+app.get('/promote/:id', isAdmin, async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.params.id, { user_type: 'admin' });
+    res.redirect('/admin');
+  } catch (err) {
+    res.status(500).send('Failed to promote user.');
+  }
+});
+
+app.get('/demote/:id', isAdmin, async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.params.id, { user_type: 'user' });
+    res.redirect('/admin');
+  } catch (err) {
+    res.status(500).send('Failed to demote user.');
+  }
+});
+
+
+app.use((req, res) => {
+  res.status(404).render('404', { user: req.session.user });
+});
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
 
-app.use((req, res) => {
-    res.status(404).send('404 Not Found');
-});
+

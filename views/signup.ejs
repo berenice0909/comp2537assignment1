@@ -1,34 +1,21 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Sign Up</title>
-        <link rel="stylesheet" href="/css/style.css">
-    </head>
+<%- include('templates/header') %>
 
-    <body>
-        <h1>Sign Up</h1>
-        <form action="/signup" method="POST">
-            <label for="name">Name:</label>
-            <input type="text" name="name" required><br><br>
+    <h1 class="display-4 fw-light text-center mt-4">Sign Up</h1>
 
-            <label for="email">Email:</label>
-            <input type="email" name="email" required><br><br>
+    <form action="/signup" method="POST" class="container mt-4" style="max-width: 500px;">
+        <div class="form-group mb-3">
+            <label for="name">Name</label>
+            <input name="name" type="text" class="form-control" id="name" placeholder="Enter your name" required>
+        </div>
+        <div class="form-group mb-3">
+            <label for="email">Email address</label>
+            <input name="email" type="email" class="form-control" id="email" placeholder="Enter email" required>
+        </div>
+        <div class="form-group mb-3">
+            <label for="password">Password</label>
+            <input name="password" type="password" class="form-control" id="password" placeholder="Password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Sign Up</button>
+    </form>
 
-            <label for="password">Password:</label>
-            <input type="password" name="password" required><br><br>
-
-            <button type="submit">Sign Up</button>
-        </form>
-
-        <% if (typeof user !== 'undefined') { %>
-          <p>Welcome <%= user.name %> | <a href="/logout">Logout</a></p>
-        <% } else { %>
-          <a href="/login">Login</a> | <a href="/signup">Sign up</a>
-        <% } %>
-        
-        </body>
-        
-</html>
-
-
-  
+    <%- include('templates/footer') %>
